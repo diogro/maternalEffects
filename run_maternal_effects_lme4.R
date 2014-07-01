@@ -31,7 +31,8 @@ runCromossome <- function(cromossome){
     current_mouse_gen = mouse_phen_std$ID
     num_loci = (length(mouse_gen[[cromossome]])-1)/3
     for(locus in 1:num_loci){
-        current_mouse_gen = cbind(current_mouse_gen, adply(mouse_phen_std$ID, 1, get_design, locus, cromossome)[,-1])
+        current_mouse_gen = cbind(current_mouse_gen,
+                                  adply(mouse_phen_std$ID, 1, get_design, locus, cromossome)[,-1])
     }
     current_data = na.omit(merge(mouse_phen_std, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
     melt_data = melt(current_data, id.vars = names(current_data)[c(1:6, 14:length(names(current_data)))])
@@ -47,7 +48,12 @@ runCromossome <- function(cromossome){
 
     runSingleLocusModel <- function(locus, cromossome){
         genotype_formula = paste(null_formula,
-                                 paste(paste('variable*',  paste(c("a_0", "d_0", "i_0", "a_m", "d_m", "c_m0", "dd_m0"), locus, sep = '_'), sep = ''), collapse = ' + '),
+                                 paste(paste('variable*',
+                                             paste(c("a_0", "d_0", "i_0", "a_m", "d_m", "c_m0", "dd_m0"),
+                                                   locus,
+                                                   sep = '_'),
+                                             sep = ''),
+                                       collapse = ' + '),
                                  sep = ' + ')
         mouse_model = lmer(as.formula(genotype_formula),
                            data = melt_data,
