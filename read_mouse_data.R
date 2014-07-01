@@ -19,7 +19,7 @@ raw_mouse_meta = read.csv("./data/F3Phenotypes_further corrected family data_cor
 names(raw_mouse_meta) = gsub('SexAN', 'SEX', names(raw_mouse_meta))
 raw_mouse_meta = select(raw_mouse_meta, ID:COHORT)
 
-    raw_mouse_meta = raw_mouse_meta[raw_mouse_meta$ID %in% raw_mouse_phen$ID,]
+raw_mouse_meta = raw_mouse_meta[raw_mouse_meta$ID %in% raw_mouse_phen$ID,]
 raw_mouse_phen = raw_mouse_phen[raw_mouse_phen$ID %in% raw_mouse_meta$ID,]
 
 mouse_phen = data.frame(arrange(raw_mouse_meta, ID), arrange(raw_mouse_phen, ID)[,-1])
@@ -37,15 +37,16 @@ mouse_phen = mouse_phen[complete_rows,]
 num_traits = 7
 traits = c( "grow12", "grow23", "grow34", "grow45", "grow56", "grow67", "grow78")
 
-m.data = melt(mouse_phen, id.vars = names(mouse_phen)[1:6])
+m_data = melt(mouse_phen, id.vars = names(mouse_phen)[1:6])
 
 null.formula = "value ~ 1 + variable * SEX + variable * LSB + variable * LSW + variable * COHORT"
-mouse_no_fixed = lm(as.formula(null.formula), data = m.data)
-m.data.std = m.data
-m.data.std$value = residuals(mouse_no_fixed)
+mouse_no_fixed = lm(as.formula(null.formula), data = m_data)
+m_data_std = m_data
+m_data_std$value = residuals(mouse_no_fixed)
+names(m_data_std)
 
-exclude = c(dim(m.data.std)[2]-1, dim(m.data.std)[2])
-cast_formula = paste(paste(names(m.data.std[,-exclude]), collapse = " + "),
+exclude = c(dim(m_data_std)[2]-1, dim(m_data_std)[2])
+cast_formula = paste(paste(names(m_data_std[,-exclude]), collapse = " + "),
                      'variable',
                      sep = " ~ ")
-mouse_phen_std = dcast(m.data.std, as.formula(cast_formula))
+mouse_phen_std = dcast(m_data_std, as.formula(cast_formula))
