@@ -67,9 +67,14 @@ runCromossome <- function(cromossome){
 }
 #maternal_scan = llply(names(mouse_gen), runCromossome)
 #names(maternal_scan) = names(mouse_gen)
-#save(maternal_scan, file = "maternalScan.Rdata")
-load("./maternalScan.Rdata")
+#save(maternal_scan, file = "./Rdatas/maternalScan.Rdata")
+load("./Rdatas/maternalScan.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 loci_mask = llply(maternal_scan, function(chromossome) laply(chromossome, function(x) x$p.value < 0.05/n_loci))
 chrom_mask = laply(loci_mask, any)
+
+signi_chrom = maternal_scan[chrom_mask]
+signi_loci = loci_mask[chrom_mask]
+
+matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
