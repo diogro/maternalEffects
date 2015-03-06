@@ -31,8 +31,6 @@ get_design = function(ind, locus, cromossome){
 }
 
 runCromossome <- function(cromossome){
-    cromossome = 4
-
     current_mouse_gen = mouse_phen_std$ID
     num_loci = (length(mouse_gen[[cromossome]])-1)/3
     for(locus in 1:num_loci){
@@ -40,14 +38,11 @@ runCromossome <- function(cromossome){
                                   adply(mouse_phen_std$ID, 1, get_design, locus, cromossome)[,-1])
     }
     current_data = na.omit(merge(mouse_phen_std, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
-    #melt_data = melt(current_data, id.vars = names(current_data)[c(1:6, 14:length(names(current_data)))])
 
-    #ggplot(melt_data, aes(variable, value, color = SEX)) + geom_boxplot() + facet_wrap(~SEX)
-
-    num.traits = 7
+    num_traits = 7
     value = paste("cbind(",
                   paste(paste("grow",
-                              paste(1:num.traits, 2:(num.traits+1), sep = ''),
+                              paste(1:num_traits, 2:(num_traits+1), sep = ''),
                               sep = ''), collapse = ', '),
                   ")", sep = '')
 
@@ -66,13 +61,13 @@ runCromossome <- function(cromossome){
                                              sep = ''),
                                        collapse = ' + '),
                                  sep = ' + ')
-        prior = list(R = list(V = diag(7), n = 0.002),
-                     G = list(G1 = list(V = diag(7) * 0.02, n = 8)))
+        prior = list(R = list(V = diag(num_traits), n = 0.002),
+                     G = list(G1 = list(V = diag(num_traits) * 0.02, n = 8)))
         mcmc.mouse.model = MCMCglmm(as.formula(genotype_formula),
                                     random = ~us(trait):FAMILY,
                                     data = current_data,
                                     rcov = ~us(trait):units,
-                                    family = rep("gaussian", 7),
+                                    family = rep("gaussian", num_traits),
                                     prior = prior,
                                     verbose = FALSE)
         return(mcmc.mouse.model)
