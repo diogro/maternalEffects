@@ -41,7 +41,7 @@ runCromossome <- function(cromossome){
 
     num_traits = 7
     value = paste("cbind(",
-                  paste(paste("grow",
+                  paste(paste("gr",
                               paste(1:num_traits, 2:(num_traits+1), sep = ''),
                               sep = ''), collapse = ', '),
                   ")", sep = '')

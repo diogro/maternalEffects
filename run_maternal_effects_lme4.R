@@ -59,16 +59,15 @@ runCromossome <- function(cromossome){
                            data = melt_data,
                            REML = FALSE)
         test = anova(mouse_model_no_gen , mouse_model)
-        print(test)
         return(list(model = mouse_model, anova = test, p.value = test$'Pr(>Chisq)'[2]))
     }
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusModel, cromossome, .parallel = TRUE)
     return(cromossome_model_list)
 }
-#maternal_scan = llply(names(mouse_gen), runCromossome)
-#names(maternal_scan) = names(mouse_gen)
-#save(maternal_scan, file = "./Rdatas/maternalScan.Rdata")
-load("./Rdatas/maternalScan.Rdata")
+maternal_scan = llply(names(mouse_gen), runCromossome)
+names(maternal_scan) = names(mouse_gen)
+save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
+#load("./Rdatas/maternalScan_lme4.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 loci_mask = llply(maternal_scan, function(chromossome) laply(chromossome, function(x) x$p.value < 0.05/n_loci))
