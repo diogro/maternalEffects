@@ -10,13 +10,13 @@ f3_pedigree = read.csv("./data/F3_pedigree.csv")
 f3_pedigree = f3_pedigree[-c(1997:2000),]
 
 raw_mouse_phen = mutate(raw_mouse_phen,
-                          grow12 = WEEK2 - WEEK1,
-                          grow23 = WEEK3 - WEEK2,
-                          grow34 = WEEK4 - WEEK3,
-                          grow45 = WEEK5 - WEEK4,
-                          grow56 = WEEK6 - WEEK5,
-                          grow67 = WEEK7 - WEEK6,
-                          grow78 = WEEK8 - WEEK7)
+                          gr12 = WEEK2 - WEEK1,
+                          gr23 = WEEK3 - WEEK2,
+                          gr34 = WEEK4 - WEEK3,
+                          gr45 = WEEK5 - WEEK4,
+                          gr56 = WEEK6 - WEEK5,
+                          gr67 = WEEK7 - WEEK6,
+                          gr78 = WEEK8 - WEEK7)
 
 raw_mouse_meta = read.csv("./data/F3Phenotypes_further corrected family data_corrected litter sizes.csv", as.is = T)
 names(raw_mouse_meta) = gsub('SexAN', 'SEX', names(raw_mouse_meta))
@@ -41,12 +41,12 @@ sum((na.omit(f3_pedigree[, 3]) %in% f3_pedigree[, 1]) == FALSE) > 0 & any(is.na(
 
 rm(list = ls(pattern='raw'))
 
-mouse_phen = select(mouse_phen, ID, FAMILY, SEX, LSB, LSW, COHORT, grow12:grow78)
+mouse_phen = select(mouse_phen, ID, FAMILY, SEX, LSB, LSW, COHORT, gr12:gr78)
 complete_rows = complete.cases(mouse_phen)
 mouse_phen = mouse_phen[complete_rows,]
 
 num_traits = 7
-traits = c( "grow12", "grow23", "grow34", "grow45", "grow56", "grow67", "grow78")
+traits = c( "gr12", "gr23", "gr34", "gr45", "gr56", "gr67", "gr78")
 
 m_data = melt(mouse_phen, id.vars = names(mouse_phen)[1:6])
 

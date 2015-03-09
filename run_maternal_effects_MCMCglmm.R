@@ -75,9 +75,22 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusMCMCModel, .parallel = TRUE)
     return(cromossome_model_list)
 }
-#maternal_scan = llply(names(mouse_gen), runCromossome)
-#names(maternal_scan) = names(mouse_gen)
-#save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
-load("./Rdatas/maternalScan_MCMCglmm.Rdata")
+maternal_scan = llply(names(mouse_gen), runCromossome)
+names(maternal_scan) = names(mouse_gen)
+save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
+#load("./Rdatas/maternalScan_MCMCglmm.Rdata")
 
+n_loci = sum(laply(maternal_scan, length))
 
+getEffects <- function(x, pattern = "[ad]_m_") { x <- summary(x); x$solutions[grep(pattern, rownames(x$solutions)),] }
+isSignificant <- function(x) { any(getEffects(x)[,"pMCMC"] < 0.002) }
+lociSummary <- function(crom, loci) summary(maternal_scan[[crom]][[loci]])$solutions
+
+loci_mask = llply(maternal_scan, function(cromossome) laply(cromossome, isSignificant), .parallel = TRUE)
+chrom_mask = laply(loci_mask, any)
+
+signi_chrom = maternal_scan[chrom_mask]
+signi_loci = loci_mask[chrom_mask]
+matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
+
+getEffects(maternal_scan[[2]][[11]])
