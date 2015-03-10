@@ -28,13 +28,13 @@ get_design = function(ind, locus, cromossome){
 }
 
 runCromossome <- function(cromossome){
-    current_mouse_gen = mouse_phen$ID
+    current_mouse_gen = mouse_phen_std$ID
     num_loci = (length(mouse_gen[[cromossome]])-1)/3
     for(locus in 1:num_loci){
         current_mouse_gen = cbind(current_mouse_gen,
-                                  adply(mouse_phen$ID, 1, get_design, locus, cromossome)[,-1])
+                                  adply(mouse_phen_std$ID, 1, get_design, locus, cromossome)[,-1])
     }
-    current_data = na.omit(merge(mouse_phen, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
+    current_data = na.omit(merge(mouse_phen_std, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
     melt_data = melt(current_data, id.vars = names(current_data)[c(1:6, 14:length(names(current_data)))])
 
     #ggplot(melt_data, aes(variable, value, color = SEX)) + geom_boxplot() + facet_wrap(~SEX)
@@ -49,7 +49,9 @@ runCromossome <- function(cromossome){
     runSingleLocusModel <- function(locus, cromossome){
         genotype_formula = paste(null_formula,
                                  paste(paste('variable*',
-                                             paste(c("a_0", "d_0", "i_0", "a_m", "d_m", "c_m0", "dd_m0"),
+                                             paste(c("a_0", "d_0", "i_0",
+                                                     "a_m", "d_m",
+                                                     "c_m0", "dd_m0"),
                                                    locus,
                                                    sep = '_'),
                                              sep = ''),
@@ -64,10 +66,10 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusModel, cromossome, .parallel = TRUE)
     return(cromossome_model_list)
 }
-maternal_scan = llply(names(mouse_gen), runCromossome)
-names(maternal_scan) = names(mouse_gen)
-save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
-#load("./Rdatas/maternalScan_lme4.Rdata")
+#maternal_scan = llply(names(mouse_gen), runCromossome)
+#names(maternal_scan) = names(mouse_gen)
+#save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
+load("./Rdatas/maternalScan_lme4.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 loci_mask = llply(maternal_scan, function(chromossome) laply(chromossome, function(x) x$p.value < 0.05/n_loci))
