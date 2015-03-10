@@ -5,7 +5,7 @@ library(lmerTest)
 library(ggplot2)
 library(doMC)
 
-registerDoMC(25)
+registerDoMC(10)
 
 get_design = function(ind, locus, cromossome){
     gen_cols = paste0(c("A", "D", "I"), locus)
@@ -39,7 +39,7 @@ runCromossome <- function(cromossome){
 
     #ggplot(melt_data, aes(variable, value, color = SEX)) + geom_boxplot() + facet_wrap(~SEX)
 
-    null_formula = "value ~ variable + (0 + variable|FAMILY) - 1"
+    null_formula = "value ~ (0 + variable|FAMILY) - 1"
     mouse_model_no_gen = lmer(as.formula(null_formula),
                               data = melt_data,
                               REML = FALSE)
@@ -48,7 +48,7 @@ runCromossome <- function(cromossome){
 
     runSingleLocusModel <- function(locus, cromossome){
         genotype_formula = paste(null_formula,
-                                 paste(paste('variable*',
+                                 paste(paste('variable:',
                                              paste(c("a_0", "d_0", "i_0",
                                                      "a_m", "d_m",
                                                      "c_m0", "dd_m0"),
