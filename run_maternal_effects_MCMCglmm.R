@@ -8,7 +8,7 @@ library(lmerTest)
 library(ggplot2)
 library(doMC)
 
-registerDoMC(50)
+registerDoMC(4)
 
 get_design = function(ind, locus, cromossome){
     gen_cols = paste0(c("A", "D", "I"), locus)
@@ -75,10 +75,10 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusMCMCModel, .parallel = TRUE)
     return(cromossome_model_list)
 }
-maternal_scan = llply(names(mouse_gen), runCromossome)
-names(maternal_scan) = names(mouse_gen)
-save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
-#load("./Rdatas/maternalScan_MCMCglmm.Rdata")
+#maternal_scan = llply(names(mouse_gen), runCromossome)
+#names(maternal_scan) = names(mouse_gen)
+#save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
+load("./Rdatas/maternalScan_MCMCglmm.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 
