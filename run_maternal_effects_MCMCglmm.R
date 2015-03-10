@@ -8,7 +8,7 @@ library(lmerTest)
 library(ggplot2)
 library(doMC)
 
-registerDoMC(4)
+registerDoMC(25)
 
 get_design = function(ind, locus, cromossome){
     gen_cols = paste0(c("A", "D", "I"), locus)
@@ -31,13 +31,13 @@ get_design = function(ind, locus, cromossome){
 }
 
 runCromossome <- function(cromossome){
-    current_mouse_gen = mouse_phen_std$ID
+    current_mouse_gen = mouse_phen$ID
     num_loci = (length(mouse_gen[[cromossome]])-1)/3
     for(locus in 1:num_loci){
         current_mouse_gen = cbind(current_mouse_gen,
-                                  adply(mouse_phen_std$ID, 1, get_design, locus, cromossome)[,-1])
+                                  adply(mouse_phen$ID, 1, get_design, locus, cromossome)[,-1])
     }
-    current_data = na.omit(merge(mouse_phen_std, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
+    current_data = na.omit(merge(mouse_phen, current_mouse_gen, by.x = 'ID', by.y = 'current_mouse_gen'))
 
     num_traits = 7
     value = paste("cbind(",
@@ -75,10 +75,10 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusMCMCModel, .parallel = TRUE)
     return(cromossome_model_list)
 }
-#maternal_scan = llply(names(mouse_gen), runCromossome)
-#names(maternal_scan) = names(mouse_gen)
-#save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
-load("./Rdatas/maternalScan_MCMCglmm.Rdata")
+maternal_scan = llply(names(mouse_gen), runCromossome)
+names(maternal_scan) = names(mouse_gen)
+save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
+#load("./Rdatas/maternalScan_MCMCglmm.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 
@@ -92,5 +92,4 @@ chrom_mask = laply(loci_mask, any)
 signi_chrom = maternal_scan[chrom_mask]
 signi_loci = loci_mask[chrom_mask]
 matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
-
-getEffects(maternal_scan[[2]][[11]])
+getEffects(maternal_scan[[1]][[7]])
