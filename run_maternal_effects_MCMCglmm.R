@@ -8,7 +8,7 @@ library(lmerTest)
 library(ggplot2)
 library(doMC)
 
-registerDoMC(25)
+registerDoMC(10)
 
 get_design = function(ind, locus, cromossome){
     gen_cols = paste0(c("A", "D", "I"), locus)
@@ -75,21 +75,22 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusMCMCModel, .parallel = TRUE)
     return(cromossome_model_list)
 }
-maternal_scan = llply(names(mouse_gen), runCromossome)
-names(maternal_scan) = names(mouse_gen)
-save(maternal_scan, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
-#load("./Rdatas/maternalScan_MCMCglmm.Rdata")
+#maternal_scan_mcmc = llply(names(mouse_gen), runCromossome)
+#names(maternal_scan_mcmc) = names(mouse_gen_mcmc)
+#save(maternal_scan_mcmc , file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
+load("./Rdatas/maternalScan_MCMCglmm.Rdata")
+#maternal_scan_mcmc = maternal_scan
+#save(maternal_scan_mcmc, file = "./Rdatas/maternalScan_MCMCglmm.Rdata")
 
-n_loci = sum(laply(maternal_scan, length))
+n_loci = sum(laply(maternal_scan_mcmc, length))
 
 getEffects <- function(x, pattern = "[ad]_m_") { x <- summary(x); x$solutions[grep(pattern, rownames(x$solutions)),] }
 isSignificant <- function(x) { any(getEffects(x)[,"pMCMC"] < 0.002) }
-lociSummary <- function(crom, loci) summary(maternal_scan[[crom]][[loci]])$solutions
+lociSummary <- function(crom, loci) summary(maternal_scan_mcmc[[crom]][[loci]])$solutions
 
-loci_mask = llply(maternal_scan, function(cromossome) laply(cromossome, isSignificant), .parallel = TRUE)
-chrom_mask = laply(loci_mask, any)
+loci_mask_mcmc = llply(maternal_scan_mcmc, function(cromossome) laply(cromossome, isSignificant), .parallel = TRUE)
+chrom_mask_mcmc = laply(loci_mask_mcmc, any)
 
-signi_chrom = maternal_scan[chrom_mask]
-signi_loci = loci_mask[chrom_mask]
-matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
-getEffects(maternal_scan[[1]][[7]])
+signi_chrom_mcmc = maternal_scan_mcmc[chrom_mask_mcmc]
+signi_loci_mcmc = loci_mask_mcmc[chrom_mask_mcmc]
+lociSummary(1, 7)

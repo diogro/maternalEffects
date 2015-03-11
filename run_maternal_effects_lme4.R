@@ -77,5 +77,4 @@ chrom_mask = laply(loci_mask, any)
 
 signi_chrom = maternal_scan[chrom_mask]
 signi_loci = loci_mask[chrom_mask]
-matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
-(matternalQTL[[1]])$'10'$model
+summary((maternal_scan[[1]][[7]])$model)
