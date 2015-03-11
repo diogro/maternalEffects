@@ -66,7 +66,7 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusModel, cromossome, .parallel = TRUE)
     return(cromossome_model_list)
 }
-#maternal_scan = llply(names(mouse_gen), runCromossome)
+#maternal_scan = llply(names(mouse_gen), runCromossome, .progress = 'text')
 #names(maternal_scan) = names(mouse_gen)
 #save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
 load("./Rdatas/maternalScan_lme4.Rdata")
