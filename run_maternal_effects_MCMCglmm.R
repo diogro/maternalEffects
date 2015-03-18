@@ -93,4 +93,4 @@ chrom_mask_mcmc = laply(loci_mask_mcmc, any)
 
 signi_chrom_mcmc = maternal_scan_mcmc[chrom_mask_mcmc]
 signi_loci_mcmc = loci_mask_mcmc[chrom_mask_mcmc]
-lociSummary(1, 7)
+lociSummary(2, 10)
