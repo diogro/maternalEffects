@@ -84,7 +84,17 @@ load("./Rdatas/maternalScan_MCMCglmm.Rdata")
 
 n_loci = sum(laply(maternal_scan_mcmc, length))
 
-getEffects <- function(x, pattern = "[ad]_m_") { x <- summary(x); x$solutions[grep(pattern, rownames(x$solutions)),] }
+getEffects <- function(x, pattern = "[ad]_m_") {
+    x <- summary(x);
+    sol <- x$solutions[grep(pattern, rownames(x$solutions)),]
+    ids <- ldply(strsplit(row.names(sol), ":"))
+    ids[,1] <- gsub("trait", "", ids[,1])
+    ids[,2] <- gsub("_.*", "", ids[,2])
+    names(ids) <- c('trait', 'effect')
+    sol <- cbind(ids, sol[,-4])
+    names(sol)[3:5] <- c('mean', 'lower', 'upper')
+    return(sol)
+}
 isSignificant <- function(x) { any(getEffects(x)[,"pMCMC"] < 0.002) }
 lociSummary <- function(crom, loci) summary(maternal_scan_mcmc[[crom]][[loci]])$solutions
 
