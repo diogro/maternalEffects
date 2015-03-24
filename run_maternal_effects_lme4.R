@@ -5,7 +5,7 @@ library(lmerTest)
 library(ggplot2)
 library(doMC)
 
-registerDoMC(50)
+registerDoMC(10)
 
 get_design = function(ind, locus, cromossome){
     gen_cols = paste0(c("A", "D", "I"), locus)
@@ -39,7 +39,7 @@ runCromossome <- function(cromossome){
 
     #ggplot(melt_data, aes(variable, value, color = SEX)) + geom_boxplot() + facet_wrap(~SEX)
 
-    null_formula = "value ~ variable + (0 + variable|FAMILY)"
+    null_formula = "value ~ (0 + variable|FAMILY) - 1"
     mouse_model_no_gen = lmer(as.formula(null_formula),
                               data = melt_data,
                               REML = FALSE)
@@ -48,8 +48,10 @@ runCromossome <- function(cromossome){
 
     runSingleLocusModel <- function(locus, cromossome){
         genotype_formula = paste(null_formula,
-                                 paste(paste('variable*',
-                                             paste(c("a_0", "d_0", "i_0", "a_m", "d_m", "c_m0", "dd_m0"),
+                                 paste(paste('variable:',
+                                             paste(c("a_0", "d_0", "i_0",
+                                                     "a_m", "d_m",
+                                                     "c_m0", "dd_m0"),
                                                    locus,
                                                    sep = '_'),
                                              sep = ''),
@@ -64,10 +66,10 @@ runCromossome <- function(cromossome){
     cromossome_model_list = alply(1:num_loci, 1, runSingleLocusModel, cromossome, .parallel = TRUE)
     return(cromossome_model_list)
 }
-maternal_scan = llply(names(mouse_gen), runCromossome)
-names(maternal_scan) = names(mouse_gen)
-save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
-#load("./Rdatas/maternalScan_lme4.Rdata")
+#maternal_scan = llply(names(mouse_gen), runCromossome, .progress = 'text')
+#names(maternal_scan) = names(mouse_gen)
+#save(maternal_scan, file = "./Rdatas/maternalScan_lme4.Rdata")
+load("./Rdatas/maternalScan_lme4.Rdata")
 
 n_loci = sum(laply(maternal_scan, length))
 loci_mask = llply(maternal_scan, function(chromossome) laply(chromossome, function(x) x$p.value < 0.05/n_loci))
@@ -75,4 +77,4 @@ chrom_mask = laply(loci_mask, any)
 
 signi_chrom = maternal_scan[chrom_mask]
 signi_loci = loci_mask[chrom_mask]
-matternalQTL = Map(function(x, y) x[y], signi_chrom, signi_loci)
+summary((maternal_scan[[1]][[7]])$model)
